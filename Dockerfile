@@ -1,4 +1,4 @@
-FROM openjdk:17.0.9-jdk-alpine3.18
+FROM eclipse-temurin:17-jre-alpine
 
 EXPOSE 8082
 
