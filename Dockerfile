@@ -1,13 +1,20 @@
-# ===== Stage 1 : Build =====
+# ===== Build =====
 FROM maven:3.9.9-eclipse-temurin-17-alpine AS build
 WORKDIR /build
+
 COPY pom.xml .
+RUN mvn dependency:go-offline
+
 COPY src ./src
 RUN mvn clean package -DskipTests
 
-# ===== Stage 2 : Runtime (image finale) =====
+# ===== Runtime =====
 FROM eclipse-temurin:17-jre-alpine
 WORKDIR /app
-COPY --from=build /build/target/*.jar app.jar
+
+# Copier UNIQUEMENT le jar
+COPY --from=build /build/target/*jar app.jar
+
+# JVM optimisée
+ENTRYPOINT ["java","-XX:MaxRAMPercentage=75.0","-jar","app.jar"]
 EXPOSE 8082
-ENTRYPOINT ["java","-jar","app.jar"]
