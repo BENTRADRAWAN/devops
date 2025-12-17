@@ -1,9 +1,13 @@
+# ===== Stage 1 : Build =====
+FROM maven:3.9.9-eclipse-temurin-17-alpine AS build
+WORKDIR /build
+COPY pom.xml .
+COPY src ./src
+RUN mvn clean package -DskipTests
+
+# ===== Stage 2 : Runtime (image finale) =====
 FROM eclipse-temurin:17-jre-alpine
-
 WORKDIR /app
-
-COPY target/timesheet-devops-1.0.jar app.jar
-
+COPY --from=build /build/target/*.jar app.jar
 EXPOSE 8082
-
 ENTRYPOINT ["java","-jar","app.jar"]
